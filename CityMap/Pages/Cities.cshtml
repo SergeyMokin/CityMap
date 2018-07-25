@@ -1,0 +1,70 @@
+﻿@page "/cities"
+@inject HttpClient Http
+<h1>Cities</h1>
+
+@if (CitiesResult == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        @foreach (var city in CitiesResult)
+        {
+            <div class="center-cropped">
+                <img style="cursor:pointer;" src="@city.url" onclick=@(() => ChooseCity(city)) />
+                <br />
+                <div class="title-text">@city.title</div>
+            </div>
+        }
+    </div>
+    if (ChoosenCity != null)
+    {
+        <CityLayout Town=@ChoosenCity />
+    }
+}
+
+@if (ExceptionResult != null)
+{
+    <p style="color: red">@ExceptionResult</p>
+    <button onclick="async () => await DownloadCities()">Reload</button>
+}
+
+@functions {
+
+    City ChoosenCity { get; set; }
+
+    IEnumerable<City> CitiesResult { get; set; }
+
+    string ExceptionResult = null;
+
+    protected override async Task OnInitAsync()
+    {
+        await DownloadCities();
+    }
+
+    private async Task DownloadCities()
+    {
+        try
+        {
+            var response = await Http.GetJsonAsync<PhotosContainer>("https://api.myjson.com/bins/7ybe5");
+            CitiesResult = response.photos;
+        }
+        catch (Exception ex)
+        {
+            ExceptionResult = ex.Message;
+            while (ex.InnerException != null)
+            {
+                ex = ex.InnerException;
+                ExceptionResult += ex.Message;
+            }
+            Console.WriteLine(ExceptionResult);
+        }
+    }
+
+    private void ChooseCity(City city)
+    {
+        this.ChoosenCity = city;
+    }
+
+}

@@ -1,0 +1,43 @@
+﻿@page "/map"
+@inject HttpClient Http
+
+
+    <section id="map" frameborder="0"></section>
+
+
+
+@functions
+{
+    IEnumerable<City> CitiesResult { get; set; }
+
+    string ExceptionResult = null;
+
+    protected override async Task OnInitAsync()
+    {
+        await DownloadCities();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return RegisteredFunction.Invoke<bool>("loadMap", CitiesResult);
+    }
+
+    private async Task DownloadCities()
+    {
+        try
+        {
+            var response = await Http.GetJsonAsync<PhotosContainer>("https://api.myjson.com/bins/7ybe5");
+            CitiesResult = response.photos;
+        }
+        catch (Exception ex)
+        {
+            ExceptionResult = ex.Message;
+            while (ex.InnerException != null)
+            {
+                ex = ex.InnerException;
+                ExceptionResult += ex.Message;
+            }
+            Console.WriteLine(ExceptionResult);
+        }
+    }
+}

@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>CityMap</title>
+    <base href="/" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/site.css" rel="stylesheet" />
+</head>
+<body>
+    <app>Loading...</app>
+
+    <script src="https://api-maps.yandex.ru/2.1/?lang=en_US" type="text/javascript"></script>
+    <script src="css/bootstrap/bootstrap-native.min.js"></script>
+    <script type="blazor-boot">
+    </script>
+    <script>
+        Blazor.registerFunction('loadMap', photos => {
+            ymaps.ready(init);
+
+            function init() {
+                var myMap = new ymaps.Map("map", {
+                    center: [55.76, 37.64],
+                    zoom: 7
+                });
+                var myPlacemark;
+                for (var i = 0; i < photos.length; i++) {
+                    myPlacemark = new ymaps.Placemark([photos[i].latitude, photos[i].longitude], {
+                        hintContent: photos[i].title,
+                        balloonContent: '<div style = "text-align:center"><span style="font-size:25px;">'
+                            + photos[i].title
+                            + '</span><br/><img src="'
+                            + photos[i].url
+                            + '"style="width:300px"><br/>'
+                            + photos[i].description
+                            + "</div>"
+                    });
+                    myMap.geoObjects.add(myPlacemark);
+                    console.log(photos[i].title);
+                }
+            }
+            return true;
+        });
+    </script>
+</body>
+</html>
